@@ -62,7 +62,6 @@ public class UserService {
         boolean isEmailValid = userBean.isEmailValid(user);
         boolean isFieldEmpty = userBean.isAnyFieldEmpty(user);
         boolean isPhoneNumberValid = userBean.isPhoneNumberValid(user);
-        boolean isImageValid = userBean.isImageUrlValid(user.getPhotoURL());
 
         if (isFieldEmpty) {
             response = Response.status(422).entity("There's an empty field. ALl fields must be filled in").build();
@@ -70,8 +69,6 @@ public class UserService {
             response = Response.status(422).entity("Invalid email").build();
         } else if (!isUsernameAvailable) {
             response = Response.status(Response.Status.CONFLICT).entity("Username already in use").build(); //status code 409
-        } else if (!isImageValid) {
-            response = Response.status(422).entity("Image URL invalid").build(); //400
         } else if (!isPhoneNumberValid) {
             response = Response.status(422).entity("Invalid phone number").build();
         } else if (userBean.register(user)) {

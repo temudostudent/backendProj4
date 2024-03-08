@@ -42,14 +42,13 @@ public class UserBean implements Serializable {
         UserEntity userEntity = userDao.findUserByUsername("admin");
         if (userEntity == null) {
             User admin = new User();
-            admin.setUsername("admin");
+            admin.setUsername("ADMIN");
             admin.setPassword("admin");
             admin.setEmail("admin@admin.com");
             admin.setFirstName("admin");
             admin.setLastName("admin");
-            admin.setPhone("123456789");
-            admin.setPhotoURL("https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png");
-            admin.setVisible(false);
+            admin.setPhone("000000001");
+            admin.setTypeOfUser(300);
 
             register(admin);
         }
@@ -62,10 +61,8 @@ public class UserBean implements Serializable {
             deletedUser.setEmail("deleted@user.com");
             deletedUser.setFirstName("Deleted");
             deletedUser.setLastName("User");
-            deletedUser.setPhone("123456788");
-            deletedUser.setPhotoURL("https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png");
+            deletedUser.setPhone("000000000");
             deletedUser.setTypeOfUser(400);
-            deletedUser.setVisible(false);
 
             register(deletedUser);
         }
@@ -89,40 +86,23 @@ public class UserBean implements Serializable {
     public boolean register(User user) {
 
         if (user != null) {
-            if (user.getUsername().equalsIgnoreCase("notAssigned")) {
-                user.setUsername(user.getUsername().toUpperCase());
+            if (user.getUsername().equals("ADMIN") || user.getUsername().equals("NOTASSIGNED")){
                 user.setVisible(false);
-                user.setTypeOfUser(User.NOTASSIGNED);
-
-                //Encripta a password usando BCrypt
-                String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
-
-                //Define a password encriptada
-                user.setPassword(hashedPassword);
-
-                //Persist o user
-                userDao.persist(convertUserDtotoUserEntity(user));
-
-                return true;
-            } else {
-                if (user.getUsername().equals("admin")){
-                    user.setTypeOfUser(300);
-                }else{
-                    user.setInitialTypeOfUser();
-                }
+            }else{
+                user.setInitialTypeOfUser();
 
                 user.setVisible(true);
-
-                //Encripta a password usando BCrypt
-                String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
-
-                //Define a password encriptada
-                user.setPassword(hashedPassword);
-
-                //Persist o user
-                userDao.persist(convertUserDtotoUserEntity(user));
-                return true;
             }
+
+            //Encripta a password usando BCrypt
+            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+
+            //Define a password encriptada
+            user.setPassword(hashedPassword);
+
+            //Persist o user
+            userDao.persist(convertUserDtotoUserEntity(user));
+            return true;
         } else {
             return false;
         }
@@ -160,7 +140,6 @@ public class UserBean implements Serializable {
         userEntity.setFirstName(user.getFirstName());
         userEntity.setLastName(user.getLastName());
         userEntity.setPhone(user.getPhone());
-        userEntity.setPhotoURL(user.getPhotoURL());
         userEntity.setVisible(user.isVisible());
 
         return userEntity;
@@ -461,8 +440,7 @@ public class UserBean implements Serializable {
                 user.getEmail().isEmpty() ||
                 user.getFirstName().isEmpty() ||
                 user.getLastName().isEmpty() ||
-                user.getPhone().isEmpty() ||
-                user.getPhotoURL().isEmpty()) {
+                user.getPhone().isEmpty()) {
             status = true;
         }
         return status;

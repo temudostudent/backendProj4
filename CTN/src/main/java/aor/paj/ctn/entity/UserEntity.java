@@ -43,7 +43,7 @@ public class UserEntity implements Serializable{
     @Column(name="phone", nullable=false, unique = true, updatable = true)
     private String phone;
 
-    @Column(name="photo_url", nullable=false, unique = false, updatable = true)
+    @Column(name="photo_url", nullable=true, unique = false, updatable = true)
     private String photoURL;
 
     @Column(name="token", nullable=true, unique = true, updatable = true)
