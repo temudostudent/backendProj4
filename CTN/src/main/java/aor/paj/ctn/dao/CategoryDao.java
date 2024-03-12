@@ -2,7 +2,9 @@ package aor.paj.ctn.dao;
 
 import aor.paj.ctn.entity.CategoryEntity;
 import aor.paj.ctn.entity.TaskEntity;
+import aor.paj.ctn.entity.UserEntity;
 import jakarta.ejb.Stateless;
+import jakarta.persistence.NoResultException;
 
 import java.util.ArrayList;
 
@@ -40,14 +42,13 @@ public class CategoryDao extends AbstractDao<CategoryEntity> {
     }
 
  public boolean deleteCategory(String name) {
-     System.out.println("############ CATEGORY DAO " + name);
+
         boolean deleted = false;
         if (name == null) {
             deleted = false;
         } else {
             try {
                 ArrayList<TaskEntity> categoryTasks = (ArrayList<TaskEntity>) em.createNamedQuery("Category.findTasksByCategory").setParameter("name", name).getResultList();
-                System.out.println("*/*/*/*/*/ SIZE " + categoryTasks.size());
                 if (categoryTasks.isEmpty()) {
                     em.createNamedQuery("Category.deleteCategory").setParameter("name", name).executeUpdate();
                     deleted = true;
@@ -58,6 +59,7 @@ public class CategoryDao extends AbstractDao<CategoryEntity> {
         }
         return deleted;
     }
+
 
     public boolean editCategory(String name, String newName) {
         boolean edited = false;
@@ -78,5 +80,15 @@ public class CategoryDao extends AbstractDao<CategoryEntity> {
         }
         System.out.println("*********************** EDITED = " + edited + " ***********************");
         return edited;
+    }
+
+    public CategoryEntity findCategoryById(int id) {
+        try {
+            return (CategoryEntity) em.createNamedQuery("Category.findCategoryById").setParameter("id", id)
+                    .getSingleResult();
+
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 }

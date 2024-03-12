@@ -683,6 +683,34 @@ public class UserService {
         return response;
     }
 
+    @DELETE
+    @Path("/deleteCategory/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response deleteCategoryById(@HeaderParam("token") String token, @PathParam("id") int id) {
+
+        Response response;
+
+        if (userBean.isAuthenticated(token)) {
+            if (userBean.userIsProductOwner(token)) {
+                try {
+                    boolean deleted = categoryBean.deleteCategoryById(id);
+                    if (deleted) {
+                        response = Response.status(200).entity("Category removed successfully").build();
+                    } else {
+                        response = Response.status(400).entity("Category with this name can't be deleted").build();
+                    }
+                } catch (Exception e) {
+                    response = Response.status(404).entity("Something went wrong. The category was not removed.").build();
+                }
+            } else {
+                response = Response.status(403).entity("You don't have permission to delete a category").build();
+            }
+        } else {
+            response = Response.status(401).entity("Invalid credentials").build();
+        }
+        return response;
+    }
+
     @PUT
     @Path("/editCategory/{categoryName}")
     @Consumes(MediaType.APPLICATION_JSON)

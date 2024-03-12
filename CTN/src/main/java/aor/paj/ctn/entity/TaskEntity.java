@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @NamedQuery(name="Task.findTaskById", query="SELECT a FROM TaskEntity a WHERE a.id = :id")// os : significam que, neste caso o id é um parametro/atributo
 @NamedQuery(name="Task.findTasksByUser", query="SELECT a FROM TaskEntity a WHERE a.owner = :owner")
 @NamedQuery(name="Task.findTasksByCategory", query="SELECT a FROM TaskEntity a WHERE a.category = :category")
+@NamedQuery(name="Task.findTasksByCategoryID", query="SELECT a FROM TaskEntity a WHERE a.category.id = :categoryId")
 @NamedQuery(name="Task.findErasedTasks", query="SELECT a FROM TaskEntity a WHERE a.erased = true")
 @NamedQuery(name="Task.findAllTasks", query="SELECT a FROM TaskEntity a")
 @NamedQuery(name="DeleteTask", query="DELETE FROM TaskEntity a WHERE a.id = :id")

@@ -1,8 +1,11 @@
 package aor.paj.ctn.bean;
 
 import aor.paj.ctn.dao.CategoryDao;
+import aor.paj.ctn.dao.TaskDao;
 import aor.paj.ctn.dto.Category;
 import aor.paj.ctn.entity.CategoryEntity;
+import aor.paj.ctn.entity.TaskEntity;
+import aor.paj.ctn.entity.UserEntity;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 
@@ -13,6 +16,8 @@ import java.util.ArrayList;
 public class CategoryBean implements Serializable {
     @EJB
     CategoryDao categoryDao;
+    @EJB
+    TaskDao taskDao;
 
     public boolean newCategory(String name){
         boolean created = false;
@@ -47,11 +52,27 @@ public class CategoryBean implements Serializable {
 
     public boolean deleteCategory(String name){
         boolean deleted = false;
-        System.out.println();
+
         if (name != null) {
             deleted = categoryDao.deleteCategory(name);
         }
         return deleted;
+    }
+
+    public boolean deleteCategoryById(int id){
+        CategoryEntity c = categoryDao.findCategoryById(id);
+
+        if (c != null) {
+            ArrayList<TaskEntity> tasks = taskDao.findTasksByCategoryID(id);
+
+            if (tasks.isEmpty()){
+                categoryDao.remove(c);
+                return true;
+            }
+        } else
+            return false;
+
+        return false;
     }
 
     public boolean editCategory(String name, String newName){
@@ -71,6 +92,7 @@ public class CategoryBean implements Serializable {
 
     public Category convertCategoryEntityToCategoryDto(CategoryEntity categoryEntity){
         Category category = new Category();
+        category.setId(categoryEntity.getId());
         category.setName(categoryEntity.getName());
         return category;
     }
