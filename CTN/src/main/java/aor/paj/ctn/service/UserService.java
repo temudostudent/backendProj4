@@ -684,7 +684,7 @@ public class UserService {
     }
 
     @DELETE
-    @Path("/deleteCategory/{id}")
+    @Path("/deleteCategory/id/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteCategoryById(@HeaderParam("token") String token, @PathParam("id") int id) {
 
@@ -697,7 +697,11 @@ public class UserService {
                     if (deleted) {
                         response = Response.status(200).entity("Category removed successfully").build();
                     } else {
-                        response = Response.status(400).entity("Category with this name can't be deleted").build();
+                        if (!categoryBean.categoryIdExists(id)) {
+                            response = Response.status(404).entity("Category with this name not found").build();
+                        } else {
+                            response = Response.status(400).entity("Category with this name can't be deleted").build();
+                        }
                     }
                 } catch (Exception e) {
                     response = Response.status(404).entity("Something went wrong. The category was not removed.").build();

@@ -41,6 +41,15 @@ public class CategoryBean implements Serializable {
         return exists;
     }
 
+    public boolean categoryIdExists(int id){
+        boolean exists = false;
+        CategoryEntity categoryEntity = categoryDao.findCategoryById(id);
+        if (categoryEntity != null) {
+            exists = true;
+        }
+        return exists;
+    }
+
     public ArrayList<Category> findAllCategories(){
         ArrayList<Category> categories = new ArrayList<>();
         ArrayList<CategoryEntity> categoryEntities = categoryDao.findAllCategories();
