@@ -66,14 +66,6 @@ public class User {
         this.email = email;
     }
 
-    public ArrayList<Task> getUserTasks() {
-        return userTasks;
-    }
-
-    public void setUserTasks(ArrayList<Task> userTasks) {
-        this.userTasks = userTasks;
-    }
-
     public String getFirstName() {
         return firstName;
     }

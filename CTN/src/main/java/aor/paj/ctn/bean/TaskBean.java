@@ -84,27 +84,48 @@ public class TaskBean implements Serializable {
         return userTasks;
     }
 
-    public boolean updateTask(Task task, String id, String categoryName, String startDate, String limitDate) {
-        TaskEntity taskEntity = taskDao.findTaskById(id);
-        Task taskDto = taskBean.convertTaskEntityToTaskDto(taskEntity);
-        User taskOwner = taskDto.getOwner();
-        LocalDate start = LocalDate.parse(startDate);
-        LocalDate limit = LocalDate.parse(limitDate);
+    public Task getTaskById(String id) {
+        TaskEntity t = taskDao.findTaskById(id);
+        if (t != null) {
+            return convertTaskEntityToTaskDto(t);
+        } else {
+            return null;
+        }
+    }
 
-        boolean edited = false;
-        task.setId(id);
-        task.setOwner(taskOwner);
-        task.setStartDate(start);
-        task.setLimitDate(limit);
-        task.setCategory(categoryBean.convertCategoryEntityToCategoryDto(categoryDao.findCategoryByName(categoryName)));
-        if (taskDao.findTaskById(task.getId()) != null) {
-            if (validateTask(task)) {
-                taskDao.merge(convertTaskToEntity(task));
-                edited = true;
-            }
+    public boolean updateTask(Task originalTask, Task updatedTask) {
+        // Verifica se a tarefa original existe no banco de dados
+        if (taskDao.findTaskById(originalTask.getId()) == null) {
+            return false; // Tarefa não encontrada, não pode ser atualizada
         }
 
-        return edited;
+        // Atualiza apenas os campos fornecidos
+        if (updatedTask.getId() != null) {
+            originalTask.setId(updatedTask.getId());
+        }
+        if (updatedTask.getTitle() != null) {
+            originalTask.setTitle(updatedTask.getTitle());
+        }
+        if (updatedTask.getDescription() != null) {
+            originalTask.setDescription(updatedTask.getDescription());
+        }
+        if (updatedTask.getCategory() != null) {
+            originalTask.setCategory(updatedTask.getCategory());
+        }
+        if (updatedTask.getStartDate() != null) {
+            originalTask.setStartDate(updatedTask.getStartDate());
+        }
+        if (updatedTask.getLimitDate() != null) {
+            originalTask.setLimitDate(updatedTask.getLimitDate());
+        }
+
+        // Valida a tarefa atualizada
+        if (validateTaskForUpdate(originalTask, updatedTask)) {
+            // Atualiza a tarefa no banco de dados
+            taskDao.merge(convertTaskToEntity(originalTask));
+            return true;
+        }
+        return false;
     }
 
     public boolean updateTaskStatus(String taskId, int stateId) {
@@ -161,20 +182,89 @@ public class TaskBean implements Serializable {
 
     public boolean validateTask(Task task) {
         boolean valid = true;
-        if ((task.getStartDate() == null
-                || task.getLimitDate() == null
-              //  || task.getLimitDate().isBefore(task.getStartDate())
-                || task.getTitle().isBlank()
-                || task.getDescription().isBlank()
-                || task.getOwner() == null
-                || task.getPriority() == 0
-                || task.getCategory() == null
-                || !categoryBean.categoryExists(task.getCategory().getName())
-                || (task.getPriority() != Task.LOWPRIORITY && task.getPriority() != Task.MEDIUMPRIORITY && task.getPriority() != Task.HIGHPRIORITY)
-                || (task.getStateId() != Task.TODO && task.getStateId() != Task.DOING && task.getStateId() != Task.DONE)
-        )) {
+
+        if (task.getTitle() == null || task.getDescription() == null ||
+                task.getOwner() == null || task.getCategory() == null ||
+                task.getPriority() == 0 || task.getStateId() == 0) {
             valid = false;
         }
+        else {
+            // Se as datas de início e limite estiverem presentes, verifique se a data limite é posterior à data de início
+            if (task.getStartDate() != null && task.getLimitDate() != null) {
+                valid = task.getLimitDate().isAfter(task.getStartDate());
+            }
+
+            // Verifique se a categoria existe
+            if (valid) {
+                valid = categoryBean.categoryExists(task.getCategory().getName());
+            }
+
+            // Verifique se a prioridade e o estado são válidos
+            if (valid) {
+                valid = (task.getPriority() == Task.LOWPRIORITY ||
+                        task.getPriority() == Task.MEDIUMPRIORITY ||
+                        task.getPriority() == Task.HIGHPRIORITY);
+                valid = valid && (task.getStateId() == Task.TODO ||
+                        task.getStateId() == Task.DOING ||
+                        task.getStateId() == Task.DONE);
+            }
+        }
+
+        return valid;
+    }
+
+    public boolean validateTaskForUpdate(Task originalTask, Task updatedTask) {
+        boolean valid = true;
+
+        // Verificar e validar apenas os atributos que foram atualizados (não são nulos)
+        if (updatedTask.getTitle() != null && !updatedTask.getTitle().isBlank()) {
+            originalTask.setTitle(updatedTask.getTitle());
+        }
+        if (updatedTask.getDescription() != null && !updatedTask.getDescription().isBlank()) {
+            originalTask.setDescription(updatedTask.getDescription());
+        }
+        if (updatedTask.getOwner() != null) {
+            originalTask.setOwner(updatedTask.getOwner());
+        }
+        if (updatedTask.getCategory() != null) {
+            if (categoryBean.categoryExists(updatedTask.getCategory().getName())) {
+                originalTask.setCategory(updatedTask.getCategory());
+            } else {
+                valid = false; // Categoria não existe
+            }
+        }
+        if (updatedTask.getPriority() != 0) {
+            if (updatedTask.getPriority() == Task.LOWPRIORITY ||
+                    updatedTask.getPriority() == Task.MEDIUMPRIORITY ||
+                    updatedTask.getPriority() == Task.HIGHPRIORITY) {
+                originalTask.setPriority(updatedTask.getPriority());
+            } else {
+                valid = false; // Prioridade inválida
+            }
+        }
+        if (updatedTask.getStateId() != 0) {
+            if (updatedTask.getStateId() == Task.TODO ||
+                    updatedTask.getStateId() == Task.DOING ||
+                    updatedTask.getStateId() == Task.DONE) {
+                originalTask.setStateId(updatedTask.getStateId());
+            } else {
+                valid = false; // Estado inválido
+            }
+        }
+
+        // Verificar se as datas de início e limite são válidas
+        if (updatedTask.getStartDate() != null || updatedTask.getLimitDate() != null) {
+            LocalDate startDate = updatedTask.getStartDate() != null ? updatedTask.getStartDate() : originalTask.getStartDate();
+            LocalDate limitDate = updatedTask.getLimitDate() != null ? updatedTask.getLimitDate() : originalTask.getLimitDate();
+
+            if (limitDate.isAfter(startDate)) {
+                originalTask.setStartDate(startDate);
+                originalTask.setLimitDate(limitDate);
+            } else {
+                valid = false; // Data limite não é posterior à data de início
+            }
+        }
+
         return valid;
     }
 

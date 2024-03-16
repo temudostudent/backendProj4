@@ -466,15 +466,20 @@ public class UserService {
     @PUT
     @Path("/updatetask/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateTask(@HeaderParam("token") String token, @HeaderParam("categoryName") String categoryName, @HeaderParam("startDate") String startDate, @HeaderParam("limitDate") String limitDate,  @PathParam("id") String id, Task task) {
+    public Response updateTask(@HeaderParam("token") String token, @PathParam("id") String id, Task updatedTask) {
         Response response;
         if (userBean.isAuthenticated(token)) {
             if (userBean.userIsTaskOwner(token, id) || userBean.userIsScrumMaster(token) || userBean.userIsProductOwner(token)) {
-                boolean updated = taskBean.updateTask(task, id, categoryName, startDate, limitDate);
-                if (updated) {
-                    response = Response.status(200).entity("Task updated successfully").build();
+                Task originalTask = taskBean.getTaskById(id);
+                if (originalTask!= null) {
+                    boolean updated = taskBean.updateTask(originalTask, updatedTask);
+                    if (updated)
+                        response = Response.status(200).entity("Task updated successfully").build();
+                    else {
+                        response = Response.status(404).entity("Impossible to update task. Verify all fields").build();
+                    }
                 } else {
-                    response = Response.status(404).entity("Impossible to update task. Verify all fields").build();
+                    response = Response.status(404).entity("Task not found").build();
                 }
             } else {
                 response = Response.status(403).entity("You don't have permission to update this task").build();
