@@ -336,7 +336,7 @@ public class UserService {
     @GET
     @Path("/all/{type}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUsers(@HeaderParam("token") String token, @PathParam("type") int typeOfUser) {
+    public Response getUsersByType(@HeaderParam("token") String token, @PathParam("type") int typeOfUser) {
         Response response;
         if (userBean.isAuthenticated(token) && !userBean.userIsDeveloper(token)) {
             List<User> users = userBean.getUsersByType(typeOfUser);

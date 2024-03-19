@@ -205,7 +205,7 @@ public class UserBean implements Serializable {
             ArrayList<User> users = new ArrayList<>();
             for (UserEntity userE : userEntities) {
 
-                if (userE.getTypeOfUser()!=400){
+                if (userE.getTypeOfUser()!=400 || userE.getPhone().equals("ADMIN")){
                     users.add(convertUserEntitytoUserDto(userE));
                 }
             }
@@ -239,6 +239,8 @@ public class UserBean implements Serializable {
         if (userEntities != null) {
             ArrayList<User> users = new ArrayList<>();
             for (UserEntity userE : userEntities) {
+
+                if (userE.getTypeOfUser()!=400 || userE.getUsername().equals("ADMIN"))
 
                 users.add(convertUserEntitytoUserDto(userE));
 
