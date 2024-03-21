@@ -19,6 +19,7 @@ import java.net.URL;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Set;
 
 @Stateless
 public class UserBean implements Serializable {
@@ -53,10 +54,10 @@ public class UserBean implements Serializable {
             register(admin);
         }
 
-        UserEntity userEntity2 = userDao.findUserByUsername("NOTASSIGNED");
+        UserEntity userEntity2 = userDao.findUserByUsername("deletedUser");
         if (userEntity2 == null) {
             User deletedUser = new User();
-            deletedUser.setUsername("NOTASSIGNED");
+            deletedUser.setUsername("deletedUser");
             deletedUser.setPassword("123");
             deletedUser.setEmail("deleted@user.com");
             deletedUser.setFirstName("Deleted");
@@ -86,11 +87,10 @@ public class UserBean implements Serializable {
     public boolean register(User user) {
 
         if (user != null) {
-            if (user.getUsername().equals("ADMIN") || user.getUsername().equals("NOTASSIGNED")){
+            if (user.getUsername().equals("ADMIN") || user.getUsername().equals("deletedUser")){
                 user.setVisible(false);
             }else{
                 user.setInitialTypeOfUser();
-
                 user.setVisible(true);
             }
 
@@ -99,6 +99,8 @@ public class UserBean implements Serializable {
 
             //Define a password encriptada
             user.setPassword(hashedPassword);
+
+            System.out.println(user);
 
             //Persist o user
             userDao.persist(convertUserDtotoUserEntity(user));
@@ -115,13 +117,18 @@ public class UserBean implements Serializable {
 
         UserEntity u = userDao.findUserByUsername(username);
 
-        if (u != null) {
+        if (u != null /*&& u.isVisible()==false*/) {
             ArrayList<TaskEntity> tasks = taskDao.findTasksByUser(u);
-            UserEntity notAssigned = userDao.findUserByUsername("NOTASSIGNED");
-            for (TaskEntity t : tasks) {
-                t.setOwner(notAssigned);
-                taskDao.merge(t);
+            UserEntity notAssigned = userDao.findUserByUsername("deletedUser");
+
+            notAssigned.addNewTasks(tasks);
+
+            if (!tasks.isEmpty()){
+                for (TaskEntity t : tasks) {
+                    t.setOwner(notAssigned);
+                }
             }
+
             userDao.remove(u);
             return true;
         } else
@@ -141,6 +148,7 @@ public class UserBean implements Serializable {
         userEntity.setLastName(user.getLastName());
         userEntity.setPhone(user.getPhone());
         userEntity.setVisible(user.isVisible());
+        userEntity.setPhotoURL(user.getPhotoURL());
 
         return userEntity;
     }

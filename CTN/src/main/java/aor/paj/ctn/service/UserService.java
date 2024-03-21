@@ -513,7 +513,7 @@ public class UserService {
     @PUT
     @Path("/{taskId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response eraseTask(@HeaderParam("token") String token, @PathParam("taskId") String id) {
+    public Response eraseTaskStatus(@HeaderParam("token") String token, @PathParam("taskId") String id) {
 
         Response response;
         if (userBean.isAuthenticated(token)) {

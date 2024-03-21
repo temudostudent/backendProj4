@@ -52,11 +52,11 @@ public class TaskBean implements Serializable {
 
     public ArrayList<Task> getAllTasks(String token) {
         UserEntity userEntity = userDao.findUserByToken(token);
-        ArrayList<TaskEntity> entityTasks = taskDao.findActiveTasks();
+        ArrayList<TaskEntity> entityTasks = taskDao.findAllTasks();
         ArrayList<Task> tasks = new ArrayList<>();
         if (entityTasks != null) {
             for (TaskEntity taskEntity : entityTasks) {
-                if (userEntity.getTypeOfUser() == User.DEVELOPER && !taskEntity.getErased()) {
+                if (userEntity.getTypeOfUser() == User.DEVELOPER) {
                     tasks.add(convertTaskEntityToTaskDto(taskEntity));
                 } else if (userEntity.getTypeOfUser() == User.SCRUMMASTER || userEntity.getTypeOfUser() == User.PRODUCTOWNER) {
                     tasks.add(convertTaskEntityToTaskDto(taskEntity));
@@ -148,10 +148,8 @@ public class TaskBean implements Serializable {
     public boolean switchErasedTaskStatus(String id) {
         boolean swithedErased = false;
         TaskEntity taskEntity = taskDao.findTaskById(id);
-        UserEntity notAssigned = userDao.findUserByUsername("NOTASSIGNED");
         if(taskEntity != null) {
             taskEntity.setErased(!taskEntity.getErased());
-            taskEntity.setOwner(notAssigned);
             taskDao.merge(taskEntity);
             swithedErased = true;
         }
