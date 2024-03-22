@@ -279,6 +279,17 @@ public class TaskBean implements Serializable {
         return tasks;
     }
 
+    public ArrayList<Task> getTasksByErasedStatus(boolean erasedStatus) {
+        ArrayList<TaskEntity> entityTasks = taskDao.findTasksByErasedStatus(erasedStatus);
+        ArrayList<Task> tasks = new ArrayList<>();
+        if (entityTasks != null) {
+            for (TaskEntity taskEntity : entityTasks) {
+                tasks.add(convertTaskEntityToTaskDto(taskEntity));
+            }
+        }
+        return tasks;
+    }
+
     public boolean eraseAllTasksFromUser(String username) {
         boolean erased = false;
         UserEntity userEntity = userDao.findUserByUsername(username);

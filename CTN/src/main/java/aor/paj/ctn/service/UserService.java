@@ -613,11 +613,11 @@ public class UserService {
     @GET
     @Path("/erasedTasks")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getErasedTasks(@HeaderParam("token") String token) {
+    public Response getTasksByErasedStatus(@HeaderParam("token") String token, @QueryParam("erased") boolean erasedStatus) {
         Response response;
         if (userBean.isAuthenticated(token)) {
             if (userBean.userIsScrumMaster(token) || userBean.userIsProductOwner(token)) {
-                ArrayList<Task> erasedTasks = taskBean.getErasedTasks();
+                ArrayList<Task> erasedTasks = taskBean.getTasksByErasedStatus(erasedStatus);
                 response = Response.status(200).entity(erasedTasks).build();
             } else {
                 response = Response.status(403).entity("You don't have permission for this request").build();

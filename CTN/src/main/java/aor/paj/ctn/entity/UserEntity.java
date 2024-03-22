@@ -8,13 +8,13 @@ import java.util.Set;
 
 @Entity
 @Table(name="user")
-@NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u")
-@NamedQuery(name = "User.findAllUsersByTypeOfUser", query = "SELECT u FROM UserEntity u WHERE u.typeOfUser = :typeOfUser")
-@NamedQuery(name = "User.findAllUsersByVisibility", query = "SELECT u FROM UserEntity u WHERE u.visible = :visible")
-@NamedQuery(name = "User.findAllUsersByTypeOfUserByVisibility", query = "SELECT u FROM UserEntity u WHERE u.typeOfUser = :typeOfUser AND u.visible = :visible")
+@NamedQuery(name = "User.findAllUsers", query = "SELECT u FROM UserEntity u WHERE u.username <> 'ADMIN'")
+@NamedQuery(name = "User.findAllUsersByTypeOfUser", query = "SELECT u FROM UserEntity u WHERE u.typeOfUser = :typeOfUser AND u.username <> 'ADMIN'")
+@NamedQuery(name = "User.findAllUsersByVisibility", query = "SELECT u FROM UserEntity u WHERE u.visible = :visible AND u.username <> 'ADMIN'")
+@NamedQuery(name = "User.findAllUsersByTypeOfUserByVisibility", query = "SELECT u FROM UserEntity u WHERE u.typeOfUser = :typeOfUser AND u.visible = :visible  AND u.username <> 'ADMIN'")
 @NamedQuery(name = "User.findUserByUsername", query = "SELECT u FROM UserEntity u WHERE u.username = :username")
-@NamedQuery(name = "User.findUserByEmail", query = "SELECT u FROM UserEntity u WHERE u.email = :email")
-@NamedQuery(name = "User.findUserByPhone", query = "SELECT  u FROM UserEntity u WHERE u.phone = :phone")
+@NamedQuery(name = "User.findUserByEmail", query = "SELECT u FROM UserEntity u WHERE u.email = :email AND u.username <> 'ADMIN'")
+@NamedQuery(name = "User.findUserByPhone", query = "SELECT  u FROM UserEntity u WHERE u.phone = :phone AND u.username <> 'ADMIN'")
 @NamedQuery(name = "User.findUserByToken", query = "SELECT DISTINCT u FROM UserEntity u WHERE u.token = :token")
 @NamedQuery(name = "User.findUserByUsernameAndPassword", query = "SELECT u FROM UserEntity u WHERE u.username = :username AND u.password = :password")
 public class UserEntity implements Serializable{
