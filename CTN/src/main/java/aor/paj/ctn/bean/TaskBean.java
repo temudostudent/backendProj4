@@ -93,6 +93,17 @@ public class TaskBean implements Serializable {
         }
     }
 
+    public boolean isTaskIdFromThisOwner(String id, String token) {
+        boolean response= false;
+        TaskEntity t = taskDao.findTaskById(id);
+        UserEntity u = userDao.findUserByToken(token);
+        if (t != null && t.getOwner().equals(u) ) {
+            return true;
+        }
+
+        return response;
+    }
+
     public boolean updateTask(Task originalTask, Task updatedTask) {
         // Verifica se a tarefa original existe no banco de dados
         if (taskDao.findTaskById(originalTask.getId()) == null) {
@@ -297,9 +308,10 @@ public class TaskBean implements Serializable {
             ArrayList<TaskEntity> userTasks = taskDao.findTasksByUser(userEntity);
             if (userTasks != null) {
                 for (TaskEntity taskEntity : userTasks) {
-                    taskEntity.setErased(true);
-                    taskEntity.setOwner(userDao.findUserByUsername("NotAssigned"));
-                    taskDao.merge(taskEntity);
+                    if (taskEntity.getErased()==false) {
+                        taskEntity.setErased(true);
+                        taskDao.merge(taskEntity);
+                    }
                 }
                 erased = true;
             }

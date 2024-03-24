@@ -517,7 +517,10 @@ public class UserService {
 
         Response response;
         if (userBean.isAuthenticated(token)) {
-            if (userBean.userIsScrumMaster(token) || userBean.userIsProductOwner(token)) {
+
+            if (userBean.userIsScrumMaster(token) ||
+                    userBean.userIsProductOwner(token) ||
+                    (userBean.userIsDeveloper(token) && taskBean.isTaskIdFromThisOwner(id, token))) {
                 try {
                     boolean switched = taskBean.switchErasedTaskStatus(id);
                     if (switched) {

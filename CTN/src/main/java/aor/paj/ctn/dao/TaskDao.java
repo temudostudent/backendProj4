@@ -25,7 +25,6 @@ public class TaskDao extends AbstractDao<TaskEntity> {
 		} catch (NoResultException e) {
 			return null;
 		}
-
 	}
 
 	public ArrayList<TaskEntity> findTasksByUser(UserEntity userEntity) {
@@ -78,6 +77,7 @@ public class TaskDao extends AbstractDao<TaskEntity> {
 			return null;
 		}
 	}
+
 
 	public boolean eraseTask(String id) {
 		boolean erased = false;
